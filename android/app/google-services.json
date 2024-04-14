@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152899558951",
+    "project_id": "skolyozapp",
+    "storage_bucket": "skolyozapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152899558951:android:d375240a67f4c2e9f7f802",
+        "android_client_info": {
+          "package_name": "com.example.skolyozapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8TBwIc2y3xvUYHqfeDkgYiAmcfKqaGV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
