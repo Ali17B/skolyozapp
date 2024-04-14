@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skolyozapp/anasayfascreen/menuikonlari.dart';
 import 'package:skolyozapp/kayitolscreen/ekdosteklepage.dart';
+import 'package:skolyozapp/smartceketscreen/smartceketpage.dart';
 
 class AnasayfaPage extends StatefulWidget {
   @override
@@ -43,6 +44,18 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
   void navigateToPage(BuildContext context, int pageIndex) {
     switch (pageIndex) {
       case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CeketPage()),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AnasayfaPage()),
+        );
+        break;
+      case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => AnasayfaPage()),
@@ -268,7 +281,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                     color: Colors.black.withOpacity(0.05),
                     spreadRadius: 0,
                     blurRadius: 4,
-                    offset: Offset(0, 2), // Yatay ve dikey konumlandırma
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
