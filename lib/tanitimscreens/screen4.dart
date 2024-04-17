@@ -43,7 +43,7 @@ class _Screen4State extends State<Screen4> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    '"Kolay Kullanım İmkanı ile Her An Yanınızdayız! Skolyoz takip uygulamamızın sezgisel arayüzü ile sağlık bilgilerinizi kolayca yönetin. Hızlı erişim menülerimiz ve basit navigasyonumuz sayesinde, günlük takip rutininizi sorunsuz bir şekilde gerçekleştirin. Sağlığınızı takip etmek hiç bu kadar kolay olmamıştı!',
+                    '"Kolay Kullanım İmkanı ile Her An Yanınızdayız! Doğru Duruş takip uygulamamızın sezgisel arayüzü ile sağlık bilgilerinizi kolayca yönetin. Hızlı erişim menülerimiz ve basit navigasyonumuz sayesinde, günlük takip rutininizi sorunsuz bir şekilde gerçekleştirin. Sağlığınızı takip etmek hiç bu kadar kolay olmamıştı!',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color.fromARGB(239, 255, 255, 255)),
                   ),

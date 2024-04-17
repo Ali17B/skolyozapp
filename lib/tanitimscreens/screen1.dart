@@ -48,7 +48,7 @@ class _Screen1State extends State<Screen1> {
               child: Column(
                 children: [
                   Text(
-                    "Skolyoz App'e Hoş Geldiniz",
+                    "Doğru Duruş App'e Hoş Geldiniz",
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -57,7 +57,7 @@ class _Screen1State extends State<Screen1> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Skolyoz Takip Uygulamasına Hoş Geldiniz! Skolyozunuzun günlük izlenmesi artık çok daha kolay. Kişiselleştirilmiş takip çözümlerimizle duruşunuzu düzenleyin, sağlığınızı koruyun.',
+                    'Doğru Duruş Takip Uygulamasına Hoş Geldiniz! Duruşunuzun günlük izlenmesi artık çok daha kolay. Kişiselleştirilmiş takip çözümlerimizle duruşunuzu düzenleyin, sağlığınızı koruyun.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color.fromARGB(239, 255, 255, 255)),
                   ),

@@ -20,7 +20,7 @@ class _BloglarPageState extends State<BloglarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Skolyoz App Blog',
+          title: Text('Doğru Duruş App Blog',
               style: TextStyle(fontWeight: FontWeight.w800)),
         ),
         body: Column(children: [

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:async'; // Timer
 
 class BluetoothManager {
   BluetoothConnection? connection;
@@ -39,53 +40,78 @@ class _CeketPageState extends State<CeketPage> {
   final bluetoothManager = BluetoothManager();
   bool isConnected = false;
   String receivedData = "";
+  Timer? _dataTimer;
+  String _receivedData = "";
 
   @override
   void initState() {
     super.initState();
     _requestBluetoothPermissions();
-  }
-
-  // Bluetooth izinlerini isteyen metot
-  Future<void> _requestBluetoothPermissions() async {
-    if (await Permission.bluetoothConnect.request().isGranted) {
-    } else {}
+    _connectToBluetoothDevice();
+    _startDataTimer();
   }
 
   void _connectToBluetoothDevice() async {
     List<BluetoothDevice> devices = await bluetoothManager.getBondedDevices();
     try {
       BluetoothDevice hc06 =
-          devices.firstWhere((device) => device.name == 'HC-06');
+          devices.firstWhere((device) => device.name == 'HC-05');
       await bluetoothManager.connectToDevice(hc06);
-      bluetoothManager.onDataReceived?.listen((data) {
-        setState(() {
-          receivedData = utf8.decode(data); // Alınan veriyi decode edip sakla
-        });
-      });
-
       setState(() {
         isConnected = true;
       });
+      bluetoothManager.onDataReceived?.asBroadcastStream().listen((data) {
+        _receivedData = utf8.decode(data);
+      });
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Hata'),
-            content: Text('Bluetooth cihazına bağlanılamadı.'),
-            actions: [
-              TextButton(
-                child: Text('Tamam'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      _showErrorDialog('Bluetooth cihazına bağlanılamadı. Hata: $e');
     }
+  }
+
+  void _startDataTimer() {
+    _dataTimer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+      _updateDataDisplay();
+    });
+  }
+
+  void _updateDataDisplay() {
+    setState(() {
+      receivedData = _receivedData;
+    });
+  }
+
+  @override
+  void dispose() {
+    bluetoothManager.connection?.dispose(); // Bağlantıyı temizle
+    _dataTimer?.cancel(); // Timer'ı iptal et
+    super.dispose();
+  }
+
+  void _showErrorDialog(String error) {
+    // Hata mesajını göster
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Hata'),
+          content: Text(error),
+          actions: [
+            TextButton(
+              child: Text('Tamam'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Bluetooth izinlerini isteyen metot
+  Future<void> _requestBluetoothPermissions() async {
+    if (await Permission.bluetoothConnect.request().isGranted) {
+    } else {}
   }
 
   @override
@@ -106,33 +132,36 @@ class _CeketPageState extends State<CeketPage> {
           ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[],
+      body: SingleChildScrollView(
+        // Eklediğimiz SingleChildScrollView
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[],
+              ),
             ),
-          ),
-          SizedBox(height: 30),
-          Center(
-            child: Image.asset('assets/images/ceket.png'),
-          ),
-          SizedBox(height: 20),
-          Text("Bluetooth ile Gelen Data:"),
-          SizedBox(height: 10,),
-          Container(
-            padding: EdgeInsets.only(left: 170, right: 170), 
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue, width: 2,), 
-              borderRadius:
-                  BorderRadius.circular(10), 
+            SizedBox(height: 30),
+            Text("Bluetooth ile Gelen Data:"),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: receivedData
+                    .split("\n")
+                    .map((String line) => Text(
+                          line,
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ))
+                    .toList(),
+              ),
             ),
-            child: Text(receivedData,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

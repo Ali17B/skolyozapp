@@ -57,7 +57,7 @@ class _Screen2State extends State<Screen2> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Gerçek zamanlı izleme ve analiz özellikleriyle, skolyoz duruşunuzu düzeltecek öneriler alın. Bluetooth bağlantılı takip ceketi sayesinde duruşunuzu anlık olarak takip edin ve gelişiminizi izleyin.',
+                    'Gerçek zamanlı izleme ve analiz özellikleriyle, duruşunuzu düzeltecek öneriler alın. Bluetooth bağlantılı takip ceketi sayesinde duruşunuzu anlık olarak takip edin ve gelişiminizi izleyin.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color.fromARGB(239, 255, 255, 255)),
                   ),
