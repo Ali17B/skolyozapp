@@ -1,9 +1,11 @@
+import 'dart:async';
+import 'dart:math';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:async'; // Timer
 
 class BluetoothManager {
   BluetoothConnection? connection;
@@ -39,56 +41,76 @@ class CeketPage extends StatefulWidget {
 class _CeketPageState extends State<CeketPage> {
   final bluetoothManager = BluetoothManager();
   bool isConnected = false;
-  String receivedData = "";
-  Timer? _dataTimer;
-  String _receivedData = "";
+  Map<String, double> deviceAngles = {};
 
   @override
   void initState() {
     super.initState();
     _requestBluetoothPermissions();
     _connectToBluetoothDevice();
-    _startDataTimer();
   }
 
   void _connectToBluetoothDevice() async {
-    List<BluetoothDevice> devices = await bluetoothManager.getBondedDevices();
     try {
+      List<BluetoothDevice> devices = await bluetoothManager.getBondedDevices();
       BluetoothDevice hc06 =
           devices.firstWhere((device) => device.name == 'HC-05');
       await bluetoothManager.connectToDevice(hc06);
-      setState(() {
-        isConnected = true;
-      });
       bluetoothManager.onDataReceived?.asBroadcastStream().listen((data) {
-        _receivedData = utf8.decode(data);
+        _processData(utf8.decode(data));
       });
+      setState(() => isConnected = true);
     } catch (e) {
       _showErrorDialog('Bluetooth cihazına bağlanılamadı. Hata: $e');
     }
   }
 
-  void _startDataTimer() {
-    _dataTimer = Timer.periodic(Duration(seconds: 10), (Timer t) {
-      _updateDataDisplay();
+  void _processData(String rawData) {
+    List<String> lines = rawData.split("\n");
+    Map<String, double> newAngles = {};
+    for (String line in lines) {
+      if (line.startsWith("Device")) {
+        List<String> parts = line.split(':');
+        String deviceId = parts[0];
+        Map<String, String> sensors = {};
+        parts[1].trim().split(' ').forEach((element) {
+          List<String> sp = element.split(':');
+          sensors[sp[0]] = sp[1];
+        });
+
+        double ax = double.parse(sensors['Ax'] ?? '0');
+        double ay = double.parse(sensors['Ay'] ?? '0');
+        double az = double.parse(sensors['Az'] ?? '0');
+        double angle = calculateAngle(ay, ax, az);
+        newAngles[deviceId] = angle;
+      }
+    }
+    setState(() {
+      deviceAngles = newAngles;
     });
+
+    // Hesaplanan açı değerlerini Firestore'a kaydettik
+    saveAngleDataToFirestore(deviceAngles);
   }
 
-  void _updateDataDisplay() {
-    setState(() {
-      receivedData = _receivedData;
-    });
+  double calculateAngle(double ay, double ax, double az) {
+    //eğer Ax ve Az her ikisi de 0 ise Ax e çok küçük bir değer atayarak tanımsızlık durumunu önledik..........
+    if (ax == 0 && az == 0) {
+      ax = 0.00000001;
+    }
+
+    double m = atan((2 * ay) / sqrt(pow(2 * ax, 2) + pow(2 * az, 2)));
+    double angle = m / pi * 180;
+    return az < 0 ? angle : 180 - angle;
   }
 
   @override
   void dispose() {
-    bluetoothManager.connection?.dispose(); // Bağlantıyı temizle
-    _dataTimer?.cancel(); // Timer'ı iptal et
+    bluetoothManager.dispose();
     super.dispose();
   }
 
   void _showErrorDialog(String error) {
-    // Hata mesajını göster
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -98,9 +120,7 @@ class _CeketPageState extends State<CeketPage> {
           actions: [
             TextButton(
               child: Text('Tamam'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -110,21 +130,32 @@ class _CeketPageState extends State<CeketPage> {
 
   // Bluetooth izinlerini isteyen metot
   Future<void> _requestBluetoothPermissions() async {
-    if (await Permission.bluetoothConnect.request().isGranted) {
+    if (!await Permission.bluetoothConnect.request().isGranted) {
+      // Handle permissions not granted
     } else {}
+  }
+
+  void saveAngleDataToFirestore(Map<String, double> deviceAngles) async {
+    String userId =
+        "kullaniciId"; // Kullanıcının ID'si, kimlik doğrulama durumuna göre ayarlanmalıdır.
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('kullanicilartable')
+          .doc(userId)
+          .set({'deviceAngles': deviceAngles}, SetOptions(merge: true));
+      print("Açılar başarıyla kaydedildi.");
+    } catch (e) {
+      print("Firestore'a veri kaydedilirken hata oluştu: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(245, 245, 250, 0.959),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(245, 245, 250, 0.959),
-        title: Text(
-          'Smart Ceket',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: <Widget>[
+        title: Text('Smart Ceket'),
+        actions: [
           IconButton(
             icon: Icon(Icons.bluetooth),
             color: isConnected ? Colors.blue : Colors.grey,
@@ -132,36 +163,13 @@ class _CeketPageState extends State<CeketPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        // Eklediğimiz SingleChildScrollView
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[],
-              ),
-            ),
-            SizedBox(height: 30),
-            Text("Bluetooth ile Gelen Data:"),
-            SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: receivedData
-                    .split("\n")
-                    .map((String line) => Text(
-                          line,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),
+      body: ListView(
+        children: deviceAngles.entries.map((entry) {
+          return ListTile(
+            title: Text('${entry.key}'),
+            subtitle: Text('Açı: ${entry.value.toStringAsFixed(2)} derece'),
+          );
+        }).toList(),
       ),
     );
   }
