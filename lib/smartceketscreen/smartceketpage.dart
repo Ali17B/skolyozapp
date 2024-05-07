@@ -70,17 +70,18 @@ class _CeketPageState extends State<CeketPage> {
     Map<String, double> newAngles = {};
     for (String line in lines) {
       if (line.startsWith("Device")) {
-        List<String> parts = line.split(':');
-        String deviceId = parts[0];
-        Map<String, String> sensors = {};
-        parts[1].trim().split(' ').forEach((element) {
-          List<String> sp = element.split(':');
-          sensors[sp[0]] = sp[1];
+        String deviceId = line.split(':')[0];
+        Map<String, double> sensors = {};
+        var sensorData = line.split(':')[1].trim().split(' ');
+        sensorData.forEach((element) {
+          var keyValue = element.split(':');
+          sensors[keyValue[0]] = double.parse(keyValue[1]);
         });
 
-        double ax = double.parse(sensors['Ax'] ?? '0');
-        double ay = double.parse(sensors['Ay'] ?? '0');
-        double az = double.parse(sensors['Az'] ?? '0');
+        double ax = sensors['Ax'] ?? 0.0;
+        double ay = sensors['Ay'] ?? 0.0;
+        double az = sensors['Az'] ?? 0.0;
+        if (ax == 0.0 && az == 0.0) ax = 0.00000001;
         double angle = calculateAngle(ay, ax, az);
         newAngles[deviceId] = angle;
       }
@@ -89,16 +90,11 @@ class _CeketPageState extends State<CeketPage> {
       deviceAngles = newAngles;
     });
 
-    // Hesaplanan açı değerlerini Firestore'a kaydettik
+// Hesaplanan açı değerlerini Firestore'a kaydettik
     saveAngleDataToFirestore(deviceAngles);
   }
 
   double calculateAngle(double ay, double ax, double az) {
-    //eğer Ax ve Az her ikisi de 0 ise Ax e çok küçük bir değer atayarak tanımsızlık durumunu önledik..........
-    if (ax == 0 && az == 0) {
-      ax = 0.00000001;
-    }
-
     double m = atan((2 * ay) / sqrt(pow(2 * ax, 2) + pow(2 * az, 2)));
     double angle = m / pi * 180;
     return az < 0 ? angle : 180 - angle;
