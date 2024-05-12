@@ -325,6 +325,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                                 userInfo[petsKeys[index]] as List<dynamic>? ??
                                     [];
 
+
                             return petsList.isEmpty
                                 ? Container()
                                 : GestureDetector(
