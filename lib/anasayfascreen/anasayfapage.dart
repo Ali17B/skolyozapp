@@ -3,6 +3,7 @@ import 'package:progress_border/progress_border.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skolyozapp/anasayfascreen/menuikonlari.dart';
+import 'package:skolyozapp/blogscreen/bloglarpage.dart';
 import 'package:skolyozapp/kayitolscreen/ekdosteklepage.dart';
 import 'package:skolyozapp/smartceketscreen/smartceketpage.dart';
 
@@ -58,7 +59,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AnasayfaPage()),
+          MaterialPageRoute(builder: (context) => BloglarPage()),
         );
         break;
 
@@ -146,7 +147,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EkHayvanEklePage()),
+                                                DigerHastaBilgileriPage()),
                                       );
                                     },
                                     highlightColor: Colors.transparent,
@@ -183,7 +184,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EkHayvanEklePage()),
+                                                DigerHastaBilgileriPage()),
                                       );
                                     },
                                   ),
@@ -195,7 +196,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                EkHayvanEklePage()),
+                                                DigerHastaBilgileriPage()),
                                       );
                                     },
                                   ),
@@ -242,7 +243,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                               child: Icon(
                                 menuIcons[index],
                                 size: 28,
-                                color: Colors.white, // İkonun rengi
+                                color: Colors.white, 
                               ),
                             ),
                             SizedBox(
@@ -252,7 +253,7 @@ class _AnasayfaPageState extends State<AnasayfaPage> {
                               menuNames[index],
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white, // Metnin rengi
+                                color: Colors.white, 
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

@@ -8,14 +8,14 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:skolyozapp/navbar/navbar.dart';
 
-class EkHayvanEklePage extends StatefulWidget {
-  const EkHayvanEklePage({super.key});
+class DigerHastaBilgileriPage extends StatefulWidget {
+  const DigerHastaBilgileriPage({super.key});
 
   @override
-  State<EkHayvanEklePage> createState() => _EkHayvanEklePageState();
+  State<DigerHastaBilgileriPage> createState() => _EkHayvanEklePageState();
 }
 
-class _EkHayvanEklePageState extends State<EkHayvanEklePage> {
+class _EkHayvanEklePageState extends State<DigerHastaBilgileriPage> {
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _isim;
